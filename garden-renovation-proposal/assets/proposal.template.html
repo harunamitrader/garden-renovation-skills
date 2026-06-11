@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{CLIENT_NAME}}邸 お庭リフォームご提案</title>
+<style>
+  :root {
+    --green: #3e7c52;
+    --green-dark: #2c5a3b;
+    --green-pale: #eef5f0;
+    --ink: #22302a;
+    --ink-soft: #5f6f66;
+    --line: #e2e9e4;
+    --bg: #fafbf9;
+    --radius: 18px;
+    --shadow: 0 8px 30px rgba(34, 48, 42, 0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    color: var(--ink); background: var(--bg);
+    line-height: 1.85; font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { display: block; max-width: 100%; }
+
+  /* ===== ヒーロー ===== */
+  .hero { position: relative; height: 72vh; min-height: 480px; max-height: 760px; overflow: hidden; }
+  .hero img { width: 100%; height: 100%; object-fit: cover; }
+  .hero::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(20, 32, 25, 0.78) 0%, rgba(20, 32, 25, 0.15) 55%, rgba(20, 32, 25, 0.25) 100%);
+  }
+  .hero-inner {
+    position: absolute; inset: auto 0 0 0; z-index: 2;
+    max-width: 1080px; margin: 0 auto; padding: 0 28px 56px;
+    color: #fff;
+  }
+  .hero .eyebrow {
+    display: inline-block; font-size: 12px; letter-spacing: 0.32em;
+    border: 1px solid rgba(255,255,255,0.6); border-radius: 999px;
+    padding: 6px 18px; margin-bottom: 22px; backdrop-filter: blur(4px);
+  }
+  .hero h1 { font-size: clamp(30px, 5vw, 52px); font-weight: 700; line-height: 1.4; letter-spacing: 0.04em; }
+  .hero .hero-sub { font-size: clamp(15px, 2vw, 19px); margin-top: 14px; opacity: 0.92; }
+  .hero .hero-meta { margin-top: 26px; font-size: 13px; opacity: 0.85; display: flex; gap: 22px; flex-wrap: wrap; }
+
+  /* ===== 共通 ===== */
+  .section { max-width: 1080px; margin: 0 auto; padding: 84px 28px 0; }
+  .section:last-of-type { padding-bottom: 84px; }
+  .sec-head { margin-bottom: 36px; }
+  .sec-head .eyebrow {
+    font-size: 12px; letter-spacing: 0.28em; color: var(--green); font-weight: 700;
+  }
+  .sec-head h2 { font-size: clamp(24px, 3.4vw, 34px); letter-spacing: 0.05em; margin-top: 6px; }
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .note { font-size: 12.5px; color: var(--ink-soft); margin-top: 14px; }
+
+  /* ===== 現況とご要望 ===== */
+  .current-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 28px; align-items: stretch; }
+  .current-grid .card img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4 / 3; }
+  .issue-list { display: flex; flex-direction: column; gap: 16px; }
+  .issue {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px 24px; box-shadow: var(--shadow);
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .issue .issue-no {
+    flex: none; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--green-pale); color: var(--green); font-weight: 700;
+    display: grid; place-items: center; font-size: 14px; margin-top: 4px;
+  }
+  .issue p { font-size: 15px; }
+
+  /* ===== BEFORE / AFTER スライダー ===== */
+  .ba-slider { position: relative; user-select: none; }
+  .ba-slider img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; pointer-events: none; }
+  .ba-slider .ba-after { position: absolute; inset: 0; clip-path: inset(0 0 0 50%); }
+  .ba-slider .ba-after img { width: 100%; height: 100%; }
+  .ba-handle {
+    position: absolute; top: 0; bottom: 0; left: 50%; width: 3px;
+    background: #fff; box-shadow: 0 0 12px rgba(0,0,0,0.35); z-index: 3; pointer-events: none;
+  }
+  .ba-handle::after {
+    content: "⇆"; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 46px; height: 46px; border-radius: 50%;
+    background: #fff; color: var(--green-dark);
+    display: grid; place-items: center; font-size: 18px; font-weight: 700;
+  }
+  .ba-slider input[type="range"] {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: ew-resize; z-index: 4; margin: 0;
+  }
+  .ba-tag {
+    position: absolute; top: 18px; z-index: 3;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
+    color: #fff; padding: 6px 16px; border-radius: 999px;
+  }
+  .ba-tag.before { left: 18px; background: rgba(40, 52, 45, 0.72); }
+  .ba-tag.after { right: 18px; background: var(--green); }
+
+  /* ===== 提案ポイント ===== */
+  .points-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 40px; }
+  .point {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 28px 26px; box-shadow: var(--shadow);
+  }
+  .point .point-no { font-size: 13px; font-weight: 700; color: var(--green); letter-spacing: 0.2em; }
+  .point h3 { font-size: 17px; margin: 10px 0 8px; line-height: 1.6; }
+  .point p { font-size: 14px; color: var(--ink-soft); }
+
+  /* ===== 平面図 ===== */
+  .siteplan-card { background: #fff; padding: clamp(16px, 3vw, 40px); }
+  .siteplan-card img { width: 100%; border-radius: calc(var(--radius) - 8px); }
+
+  /* ===== 工事概要 ===== */
+  .estimate-card { padding: clamp(10px, 2vw, 18px) clamp(18px, 3vw, 36px); }
+  .estimate-row {
+    display: grid; grid-template-columns: 150px 1fr; gap: 18px;
+    padding: 20px 0; border-bottom: 1px solid var(--line);
+  }
+  .estimate-row:last-child { border-bottom: none; }
+  .estimate-row dt { font-weight: 700; color: var(--green-dark); font-size: 15px; }
+  .estimate-row dd { font-size: 15px; }
+  .estimate-row dd.price { font-size: 22px; font-weight: 700; color: var(--ink); }
+
+  /* ===== フッター ===== */
+  .footer { background: var(--green-dark); color: #fff; margin-top: 96px; }
+  .footer-inner { max-width: 1080px; margin: 0 auto; padding: 56px 28px; }
+  .footer .footer-company { font-size: 20px; font-weight: 700; letter-spacing: 0.06em; }
+  .footer .footer-contact { margin-top: 10px; font-size: 14px; opacity: 0.9; }
+  .footer .footer-note { margin-top: 30px; font-size: 12px; opacity: 0.65; line-height: 1.9; }
+
+  @media (max-width: 760px) {
+    .current-grid { grid-template-columns: 1fr; }
+    .points-grid { grid-template-columns: 1fr; }
+    .estimate-row { grid-template-columns: 1fr; gap: 4px; padding: 16px 0; }
+    .section { padding-top: 64px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== ヒーロー ===== -->
+<header class="hero">
+  <img src="after.png" alt="完成イメージ">
+  <div class="hero-inner">
+    <span class="eyebrow">GARDEN RENOVATION PLAN</span>
+    <h1>{{CLIENT_NAME}}邸<br>お庭リフォームご提案</h1>
+    <p class="hero-sub">{{COVER_SUBTITLE}}</p>
+    <div class="hero-meta">
+      <span>{{DATE}}</span>
+<!-- BEGIN:ISSUER -->
+      <span>{{COMPANY_NAME}}　担当: {{PERSON_NAME}}</span>
+<!-- END:ISSUER -->
+    </div>
+  </div>
+</header>
+
+<!-- ===== 現況とご要望 ===== -->
+<section class="section">
+  <div class="sec-head">
+    <span class="eyebrow">CURRENT</span>
+    <h2>現況とご要望</h2>
+  </div>
+  <div class="current-grid">
+    <div class="card"><img src="before.png" alt="現況のお庭"></div>
+    <div class="issue-list">
+      <div class="issue"><span class="issue-no">1</span><p>{{ISSUE_1}}</p></div>
+      <div class="issue"><span class="issue-no">2</span><p>{{ISSUE_2}}</p></div>
+      <div class="issue"><span class="issue-no">3</span><p>{{ISSUE_3}}</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ご提案 ===== -->
+<section class="section">
+  <div class="sec-head">
+    <span class="eyebrow">PROPOSAL</span>
+    <h2>リフォームのご提案</h2>
+  </div>
+  <div class="card ba-slider" id="baSlider">
+    <img src="before.png" alt="現況">
+    <div class="ba-after"><img src="after.png" alt="完成イメージ"></div>
+    <div class="ba-handle"></div>
+    <span class="ba-tag before">BEFORE</span>
+    <span class="ba-tag after">AFTER</span>
+    <input type="range" min="0" max="100" value="50" aria-label="ビフォーアフター比較">
+  </div>
+  <p class="note">スライダーを左右に動かすと、現況と完成イメージを比較できます。<br>
+  ※完成イメージはAIによる生成画像です。実際の仕上がり・色味・寸法とは異なる場合があります。</p>
+
+  <div class="points-grid">
+    <div class="point">
+      <span class="point-no">POINT 01</span>
+      <h3>{{POINT_1_TITLE}}</h3>
+      <p>{{POINT_1_BODY}}</p>
+    </div>
+    <div class="point">
+      <span class="point-no">POINT 02</span>
+      <h3>{{POINT_2_TITLE}}</h3>
+      <p>{{POINT_2_BODY}}</p>
+    </div>
+    <div class="point">
+      <span class="point-no">POINT 03</span>
+      <h3>{{POINT_3_TITLE}}</h3>
+      <p>{{POINT_3_BODY}}</p>
+    </div>
+  </div>
+</section>
+
+<!-- BEGIN:SITEPLAN -->
+<!-- ===== 平面図 ===== -->
+<section class="section">
+  <div class="sec-head">
+    <span class="eyebrow">SITE PLAN</span>
+    <h2>お庭の平面プラン</h2>
+  </div>
+  <div class="card siteplan-card">
+    <img src="siteplan.png" alt="平面図">
+  </div>
+  <p class="note">※AIが生成した概念図です。寸法・縮尺は目安であり、実測図・施工図ではありません。</p>
+</section>
+<!-- END:SITEPLAN -->
+
+<!-- BEGIN:ESTIMATE -->
+<!-- ===== 工事概要・概算 ===== -->
+<section class="section">
+  <div class="sec-head">
+    <span class="eyebrow">ESTIMATE</span>
+    <h2>工事概要・概算</h2>
+  </div>
+  <div class="card estimate-card">
+    <dl>
+      <div class="estimate-row"><dt>工事内容</dt><dd>{{WORK_SUMMARY}}</dd></div>
+      <div class="estimate-row"><dt>概算金額</dt><dd class="price">{{ESTIMATE_PRICE}}</dd></div>
+      <div class="estimate-row"><dt>想定工期</dt><dd>{{WORK_PERIOD}}</dd></div>
+      <div class="estimate-row"><dt>備考</dt><dd>{{ESTIMATE_NOTE}}</dd></div>
+    </dl>
+  </div>
+  <p class="note">※上記は概算です。正式なお見積りは現地調査のうえ、別途お見積書にてご提示いたします。</p>
+</section>
+<!-- END:ESTIMATE -->
+
+<!-- ===== フッター ===== -->
+<footer class="footer">
+  <div class="footer-inner">
+<!-- BEGIN:ISSUER -->
+    <div class="footer-company">{{COMPANY_NAME}}</div>
+    <div class="footer-contact">担当: {{PERSON_NAME}}　{{COMPANY_CONTACT}}</div>
+<!-- END:ISSUER -->
+    <p class="footer-note">
+      本資料の完成イメージ・平面プランはAIによる生成画像を含みます。実際の仕上がり・色味・寸法とは異なる場合があります。<br>
+      {{DATE}} 作成
+    </p>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var slider = document.getElementById('baSlider');
+    if (!slider) return;
+    var range = slider.querySelector('input[type="range"]');
+    var after = slider.querySelector('.ba-after');
+    var handle = slider.querySelector('.ba-handle');
+    range.addEventListener('input', function () {
+      after.style.clipPath = 'inset(0 0 0 ' + range.value + '%)';
+      handle.style.left = range.value + '%';
+    });
+  })();
+</script>
+
+</body>
+</html>

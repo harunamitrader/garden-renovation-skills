@@ -1,0 +1,7 @@
+assets/company.json
+garden-design-output/
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
