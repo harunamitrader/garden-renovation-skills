@@ -123,10 +123,9 @@ garden-design-output/{YYYY-MM-DD}-{slug}/
 **グローバルスキルとして使う場合（全プロジェクトで利用可）**
 
 ```bash
-# ~/.codex/skills/ と ~/.agents/skills/ はどちらでも可（同じ場所を参照）
-cp -r garden-renovation-visualizer ~/.codex/skills/
-cp -r garden-renovation-siteplan ~/.codex/skills/
-cp -r garden-renovation-proposal ~/.codex/skills/
+cp -r garden-renovation-visualizer ~/.agents/skills/
+cp -r garden-renovation-siteplan ~/.agents/skills/
+cp -r garden-renovation-proposal ~/.agents/skills/
 ```
 
 **プロジェクトローカルスキルとして使う場合（チームで共有する場合）**
@@ -157,7 +156,7 @@ cp -r garden-renovation-proposal your-project/.agents/skills/
 
 | | Codex CLI | Codex デスクトップアプリ |
 |---|---|---|
-| スキルの読み込み | ✅ `~/.codex/skills/` | ✅ 同じ場所を参照 |
+| スキルの読み込み | ✅ `~/.agents/skills/` | ✅ 同じ場所を参照 |
 | built-in image_gen | ✅ | ✅ |
 | 参照画像付き編集 | ✅ | ✅（スレッドに写真を添付） |
 | ローカルファイル出力 | ✅ | ✅（同じ PC 上で実行） |

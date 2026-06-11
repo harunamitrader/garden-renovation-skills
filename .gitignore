@@ -1,4 +1,4 @@
-assets/company.json
+**/assets/company.json
 garden-design-output/
 *.log
 __pycache__/

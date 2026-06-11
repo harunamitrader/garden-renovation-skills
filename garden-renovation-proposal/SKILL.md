@@ -42,7 +42,7 @@ garden-design-output/{YYYY-MM-DD}-{slug}/
 
 ### Step 2: 会社情報の取得
 
-- このスキルフォルダの `assets/company.json`（`$CODEX_HOME/skills/garden-renovation-proposal/assets/company.json`）があれば読み込んで使う
+- このスキル自身のフォルダ内の `assets/company.json`（例: `~/.agents/skills/garden-renovation-proposal/assets/company.json`）があれば読み込んで使う
 - 無ければ会社名・担当者名・連絡先（電話 / メール、任意）を質問し、回答を同ファイルに保存してよいか確認する。保存形式:
 
 ```json
