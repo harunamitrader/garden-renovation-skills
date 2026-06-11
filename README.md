@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="docs/header.png" alt="garden-renovation-skills" width="640">
+</div>
+
 # garden-renovation-skills
 
 > **Codex Agent Skills** — 現況写真と自然言語の要望から、庭・外構のリフォーム提案をAIで生成するスキル集。
