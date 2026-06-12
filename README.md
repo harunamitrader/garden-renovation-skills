@@ -6,7 +6,7 @@
 
 > **Codex Agent Skills** — 現況写真と自然言語の要望から、庭・外構のリフォーム提案をAIで生成するスキル集。
 
-造園・外構業者向けの Codex スキルを 3 本セットで提供します。現況写真をベースに完成予想図・平面図を生成し、施主に渡せる提案ページ（HTML）まで一気通貫で作れます。
+造園・外構業者向けの Codex スキルを 3 本セットで提供します。**`garden-renovation-proposal` に話しかけるだけで、完成予想図・平面図の生成から提案ページの出力まで一気通貫で完結します。**
 
 ---
 
@@ -28,78 +28,80 @@
 
 ---
 
+## 使い方
+
+### 基本的な流れ（これだけでOK）
+
+**`garden-renovation-proposal` スキルに写真と要望を渡すだけ。** 完成予想図・平面図の生成は内部で自動的に行われます。
+
+```
+この庭の写真で提案ページを作って。
+要望：2台用カーポートを設置して、タイル舗装にしたい。
+```
+
+または明示的にスキルを指定する場合：
+
+```
+$garden-renovation-proposal
+（写真を添付）
+2台用カーポートと植栽でモダンな外構にしたい。山田様邸。
+```
+
+**内部で自動実行される処理：**
+
+```
+garden-renovation-proposal（エントリーポイント）
+  ├─ garden-renovation-visualizer  → 完成予想図を生成
+  ├─ garden-renovation-siteplan    → 平面図を生成（任意）
+  └─ proposal.template.html に埋め込み → proposal.html を出力
+```
+
+**出力されるファイル：**
+
+```
+garden-design-output/{YYYY-MM-DD}-{案件名}/
+├── before.png      # 元写真
+├── after.png       # 完成予想図
+├── siteplan.png    # 平面図（生成した場合）
+├── plan.md         # 改修プランの記録
+└── proposal.html   # 施主に渡す提案ページ ← これが最終成果物
+```
+
+`proposal.html` はブラウザで開くだけ。フォルダごと渡せばオフラインでも閲覧できます。
+
+### 各スキル単体での利用
+
+提案ページは不要で完成予想図だけ欲しい、平面図だけ作り直したい、といった場合は各スキルを単独で呼び出せます。
+
+| スキル | 単独での呼び出し例 |
+|---|---|
+| `garden-renovation-visualizer` | `この庭の写真から完成予想図だけ作って` |
+| `garden-renovation-siteplan` | `このプランの平面図だけ作って` |
+| `garden-renovation-proposal` | `この before/after から提案ページを作って（写真生成済みの場合）` |
+
+---
+
 ## スキル構成
 
 ```
 garden-renovation-skills/
-├── garden-renovation-visualizer/   # ① 完成予想図の生成（メイン）
+├── garden-renovation-proposal/     # エントリーポイント（ここから始める）
+│   ├── SKILL.md
+│   └── assets/
+│       └── proposal.template.html
+├── garden-renovation-visualizer/   # 完成予想図の生成（proposal から呼ばれる）
 │   └── SKILL.md
-├── garden-renovation-siteplan/     # ② 外構平面図の生成
-│   └── SKILL.md
-└── garden-renovation-proposal/     # ③ 施主向け提案ページ（HTML）の生成
-    ├── SKILL.md
-    └── assets/
-        └── proposal.template.html
+└── garden-renovation-siteplan/     # 外構平面図の生成（proposal から呼ばれる）
+    └── SKILL.md
 ```
-
-3本は独立して使えますが、①→②→③の順に連携させると一番効果的です。
 
 ---
 
 ## スキル詳細
 
-### ① garden-renovation-visualizer（メイン）
+### garden-renovation-proposal（エントリーポイント）
 
-現況写真と自然言語の要望から **改修後の完成予想図** を生成します。
-
-**特徴**
-- Codex の built-in `image_gen`（gpt-image-2）の **edit モード** を使用
-- 建物・フェンス・隣地構造物など変更対象外の部分は写真のまま保持
-- 変更したい部分だけをプロンプトで指定して置き換え
-- 生成後に建物形状・窓の数・パースの保持を検証し、崩れがあれば修正イテレーション
-- 改修内容・敷地の位置関係を `plan.md` に記録（②③の入力として使える）
-
-**使い方（Codex）**
-```
-この庭の写真から完成予想図を作って。
-要望：芝生を撤去してウッドデッキと砂利敷きにしたい。
-```
-または `$garden-renovation-visualizer` でスキルを明示的に呼び出す。
-
-**出力**
-```
-garden-design-output/{YYYY-MM-DD}-{slug}/
-├── before.png   # 元写真のコピー
-├── after.png    # 完成予想図
-└── plan.md      # 改修プランの記録
-```
-
-**能力の限界**
-- 編集は再生成ベースのため、建物の形状・構図レベルでは高精度に保持されますが、壁のテクスチャや葉の細部はピクセル単位では一致しません
-- 出力解像度の実用上限は約 2K（元写真がそれ以上でも超えられない）
-- 一度に変更する項目が 4 つを超えると保持精度が下がるため、スキル内で 2 段階に分割します
-
----
-
-### ② garden-renovation-siteplan
-
-`plan.md` と完成予想図をもとに **外構平面図（真上視点の 2D サイトプラン）** を生成します。
-
-**特徴**
-- gpt-image-2 の高精度な日本語テキスト描画（99%超）を活かし、ラベル・凡例・方位記号を画像内に直接描画
-- 斜め写真からの位置関係を再現（寸法・縮尺は概算）
-- CAD 図面の代替ではなく、施主への説明用の概念図
-
-**使い方（Codex）**
-```
-このプランの平面図も作って。
-```
-
----
-
-### ③ garden-renovation-proposal
-
-完成予想図・平面図・改修プランをまとめて **施主向け提案ページ（HTML）** を生成します。
+**写真と要望だけ渡せば提案ページまで仕上がる**、メインスキルです。内部で visualizer・siteplan を呼び出し、生成した画像をそのまま HTML テンプレートに埋め込みます。
 
 **特徴**
 - モダンデザイン、スマホ対応、スクロール 1 ページ完結
@@ -107,12 +109,34 @@ garden-design-output/{YYYY-MM-DD}-{slug}/
 - 完成予想図・平面図は `img` タグで埋め込むだけなので再描画なし（AI 誤りが混入しない）
 - 会社情報は `assets/company.json` に保存して使い回し可能
 - 金額・工期はユーザーが提示した値のみ記載（推測で書かない）
-- フォルダごと渡せばオフラインでも閲覧可能
 
-**使い方（Codex）**
-```
-山田様邸の提案ページにまとめて。工期は約2週間。
-```
+---
+
+### garden-renovation-visualizer（完成予想図）
+
+現況写真と自然言語の要望から **改修後の完成予想図** を生成します。proposal から呼ばれますが、単独でも使えます。
+
+**特徴**
+- Codex の built-in `image_gen`（gpt-image-2）の **edit モード** を使用
+- 建物・フェンス・隣地構造物など変更対象外の部分を写真のまま保持
+- 変更したい部分だけをプロンプトで指定して置き換え
+- 生成後に建物形状・窓の数・パースの保持を検証し、崩れがあれば修正イテレーション
+
+**能力の限界**
+- 編集は再生成ベースのため、建物の形状・構図レベルでは高精度に保持されますが、壁のテクスチャや葉の細部はピクセル単位では一致しません
+- 出力解像度の実用上限は約 2K
+- 一度に変更する項目が 4 つを超えると保持精度が下がるため、スキル内で 2 段階に分割します
+
+---
+
+### garden-renovation-siteplan（平面図）
+
+`plan.md` と完成予想図をもとに **外構平面図（真上視点の 2D サイトプラン）** を生成します。proposal から呼ばれますが、単独でも使えます。
+
+**特徴**
+- gpt-image-2 の高精度な日本語テキスト描画（99%超）を活かし、ラベル・凡例・方位記号を画像内に直接描画
+- 斜め写真からの位置関係を再現（寸法・縮尺は概算）
+- CAD 図面の代替ではなく、施主への説明用の概念図
 
 ---
 
@@ -142,7 +166,7 @@ cp -r garden-renovation-proposal your-project/.agents/skills/
 
 ### 会社情報の登録（任意）
 
-`garden-renovation-proposal/assets/company.json` を作成しておくと、提案ページに自動で会社名・担当者名が入ります。
+`~/.agents/skills/garden-renovation-proposal/assets/company.json` を作成しておくと、提案ページに自動で会社名・担当者名が入ります。
 
 ```json
 {
